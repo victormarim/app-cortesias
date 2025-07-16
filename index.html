@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cortesias Eventos Health Tech</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Adicionando a biblioteca do EmailJS -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 4px solid #3498db;
+            width: 24px;
+            height: 24px;
+            animation: spin 2s linear infinite;
+            display: inline-block;
+            margin-left: 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-lg p-6 sm:p-8">
+        
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-slate-800">Cortesias Eventos Health Tech</h1>
+            <p class="text-slate-500 mt-2">Preencha o formulário para solicitar uma cortesia para seu cliente.</p>
+        </div>
+
+        <!-- Mensagens de Feedback -->
+        <div id="success-message" class="hidden bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-lg mb-6" role="alert">
+            <p class="font-bold">Solicitação Enviada!</p>
+            <p>Sua cortesia foi solicitada com sucesso. O marketing retornará em até 7 dias úteis.</p>
+        </div>
+        <div id="error-message" class="hidden bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-6" role="alert">
+            <p class="font-bold">Erro no Envio</p>
+            <p>Não foi possível enviar a solicitação. Por favor, tente novamente.</p>
+        </div>
+
+        <!-- Formulário de Solicitação -->
+        <form id="cortesia-form">
+            <div class="space-y-6">
+                
+                <div>
+                    <label for="vendedor-nome" class="block text-sm font-medium text-slate-700 mb-1">Seu Nome (Vendedor)</label>
+                    <input type="text" id="vendedor-nome" name="vendedor-nome" class="block w-full px-4 py-2 text-slate-900 bg-white border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition" placeholder="Ex: João da Silva">
+                    <p id="vendedor-nome-error" class="text-red-500 text-xs mt-1 hidden">Campo obrigatório.</p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">1. Selecione o Evento</label>
+                    <div id="eventos-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <!-- Os eventos serão inseridos aqui via JavaScript -->
+                    </div>
+                    <p id="evento-error" class="text-red-500 text-xs mt-1 hidden">Por favor, selecione um evento.</p>
+                </div>
+
+                <div>
+                    <label for="cliente-nome" class="block text-sm font-medium text-slate-700 mb-1">2. Nome do Cliente</label>
+                    <input type="text" id="cliente-nome" name="cliente-nome" class="block w-full px-4 py-2 text-slate-900 bg-white border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition" placeholder="Ex: Clínica Inovadora">
+                    <p id="cliente-nome-error" class="text-red-500 text-xs mt-1 hidden">Campo obrigatório.</p>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="cliente-categoria" class="block text-sm font-medium text-slate-700 mb-1">3. Categoria do Cliente</label>
+                        <select id="cliente-categoria" name="cliente-categoria" class="block w-full px-4 py-2 text-slate-900 bg-white border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition">
+                            <option value="" disabled selected>Selecione</option>
+                            <option value="Platinum">Platinum</option>
+                            <option value="Ouro">Ouro</option>
+                            <option value="Prata">Prata</option>
+                            <option value="Bronze">Bronze</option>
+                        </select>
+                         <p id="cliente-categoria-error" class="text-red-500 text-xs mt-1 hidden">Campo obrigatório.</p>
+                    </div>
+                    <div>
+                        <label for="quantidade" class="block text-sm font-medium text-slate-700 mb-1">4. Quantidade</label>
+                        <input type="number" id="quantidade" name="quantidade" min="1" value="1" class="block w-full px-4 py-2 text-slate-900 bg-white border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition">
+                        <p id="quantidade-error" class="text-red-500 text-xs mt-1 hidden">Campo obrigatório.</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="mt-8">
+                <button type="submit" id="submit-button" class="w-full bg-sky-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-all duration-300 ease-in-out flex items-center justify-center">
+                    <span id="button-text">Solicitar Cortesia</span>
+                    <div id="loader" class="loader hidden"></div>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // --- CONFIGURAÇÃO DE EVENTOS ---
+        const eventosDisponiveis = [
+            "Congresso Nacional de Inovação em Saúde",
+            "Feira Hospitalar 2025",
+            "Simpósio de Telemedicina Avançada",
+            "Workshop de Gestão para Clínicas"
+        ];
+        
+        // --- CONFIGURAÇÃO EMAILJS ---
+        const EMAILJS_PUBLIC_KEY = 'L-KAMT0IUpNWd3p6N';
+        const EMAILJS_SERVICE_ID = 'service_r643f7a';
+        const EMAILJS_TEMPLATE_ID = 'template_cortesia';
+        // -----------------------------
+
+        function popularEventos() {
+            const lista = document.getElementById('eventos-list');
+            lista.innerHTML = ''; // Limpa a lista antes de popular
+            eventosDisponiveis.forEach((evento, index) => {
+                const id = `evento-${index}`;
+                // CORREÇÃO DEFINITIVA: Estrutura refeita para garantir o funcionamento da seleção.
+                const itemHtml = `
+                    <label for="${id}" 
+                           class="relative flex cursor-pointer items-center justify-center rounded-lg border border-slate-300 bg-white p-3 text-center transition hover:border-sky-400">
+                        <input type="radio" name="evento" id="${id}" value="${evento}" class="peer sr-only" />
+                        
+                        <!-- Camada de fundo que muda de cor -->
+                        <div class="absolute inset-0 z-0 rounded-lg bg-sky-500 opacity-0 transition-opacity peer-checked:opacity-100"></div>
+                        
+                        <!-- Texto que muda de cor -->
+                        <p class="relative z-10 text-sm font-medium text-slate-700 transition-colors peer-checked:text-white">${evento}</p>
+                    </label>
+                `;
+                lista.innerHTML += itemHtml;
+            });
+        }
+
+        function validarFormulario() {
+            let isValid = true;
+            document.querySelectorAll('p[id$="-error"]').forEach(p => p.classList.add('hidden'));
+
+            if (!document.getElementById('vendedor-nome').value) {
+                document.getElementById('vendedor-nome-error').classList.remove('hidden');
+                isValid = false;
+            }
+            if (!document.querySelector('input[name="evento"]:checked')) {
+                document.getElementById('evento-error').classList.remove('hidden');
+                isValid = false;
+            }
+            if (!document.getElementById('cliente-nome').value) {
+                document.getElementById('cliente-nome-error').classList.remove('hidden');
+                isValid = false;
+            }
+            if (!document.getElementById('cliente-categoria').value) {
+                document.getElementById('cliente-categoria-error').classList.remove('hidden');
+                isValid = false;
+            }
+            const quantidade = document.getElementById('quantidade').value;
+            if (!quantidade || quantidade < 1) {
+                document.getElementById('quantidade-error').classList.remove('hidden');
+                isValid = false;
+            }
+            return isValid;
+        }
+        
+        function toggleLoading(isLoading) {
+            const buttonText = document.getElementById('button-text');
+            const loader = document.getElementById('loader');
+            const button = document.getElementById('submit-button');
+
+            if (isLoading) {
+                buttonText.textContent = 'Enviando...';
+                loader.classList.remove('hidden');
+                button.disabled = true;
+                button.classList.add('opacity-75', 'cursor-not-allowed');
+            } else {
+                buttonText.textContent = 'Solicitar Cortesia';
+                loader.classList.add('hidden');
+                button.disabled = false;
+                button.classList.remove('opacity-75', 'cursor-not-allowed');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            popularEventos();
+
+            emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+
+            const form = document.getElementById('cortesia-form');
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+
+                if (!validarFormulario()) {
+                    return;
+                }
+
+                toggleLoading(true);
+                document.getElementById('success-message').classList.add('hidden');
+                document.getElementById('error-message').classList.add('hidden');
+
+                emailjs.sendForm(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, this)
+                    .then(() => {
+                        document.getElementById('success-message').classList.remove('hidden');
+                        form.reset();
+                    }, (error) => {
+                        console.error('EmailJS error:', error);
+                        document.getElementById('error-message').classList.remove('hidden');
+                    })
+                    .finally(() => {
+                        toggleLoading(false);
+                        setTimeout(() => {
+                            document.getElementById('success-message').classList.add('hidden');
+                            document.getElementById('error-message').classList.add('hidden');
+                        }, 8000);
+                    });
+            });
+        });
+    </script>
+</body>
+</html>
