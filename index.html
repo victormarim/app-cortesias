@@ -78,10 +78,7 @@
                             <!-- Eventos inseridos via JS -->
                         </div>
                     </div>
-                    <div>
-                        <label for="quantidade" class="block text-sm font-medium text-slate-700 mb-1">Quantidade de Cortesias (máx. 4)</label>
-                        <input type="number" id="quantidade" name="quantidade" min="1" max="4" value="1" class="block w-full px-4 py-2 text-slate-900 bg-white border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500">
-                    </div>
+                    <!-- Campo de quantidade removido -->
                 </div>
                 <div class="mt-8">
                     <button type="button" id="next-button" class="w-full bg-sky-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-all">
@@ -102,7 +99,7 @@
                         Voltar
                     </button>
                     <button type="submit" id="submit-button" class="w-full bg-green-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all flex items-center justify-center">
-                        <span id="button-text">Solicitar Cortesias</span>
+                        <span id="button-text">Solicitar Cortesia</span>
                         <div id="loader" class="loader hidden"></div>
                     </button>
                 </div>
@@ -136,7 +133,7 @@
             } else {
                 screen1.classList.add('hidden');
                 screen2.classList.remove('hidden');
-                subtitle.textContent = 'Passo 2 de 2: Detalhes dos seus convidados';
+                subtitle.textContent = 'Passo 2 de 2: Detalhes do seu convidado';
                 state.currentScreen = 2;
             }
         }
@@ -163,9 +160,8 @@
             for (let i = 0; i < quantity; i++) {
                 const formHtml = `
                     <div class="border border-slate-200 rounded-lg p-6 bg-slate-50">
-                        <h3 class="text-xl font-bold text-slate-700 mb-4">Cortesia ${i + 1}</h3>
+                        <h3 class="text-xl font-bold text-slate-700 mb-4">Dados da Cortesia</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <!-- Campos existentes -->
                             <div class="lg:col-span-2">
                                 <label for="cliente-nome-${i}" class="block text-sm font-medium text-slate-600">Nome do Cliente</label>
                                 <input type="text" id="cliente-nome-${i}" name="cliente-nome-${i}" class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500">
@@ -181,10 +177,6 @@
                             <div>
                                 <label for="cidade-${i}" class="block text-sm font-medium text-slate-600">Cidade <span class="text-red-500">*</span></label>
                                 <input type="text" id="cidade-${i}" name="cidade-${i}" class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500">
-                            </div>
-                            <div>
-                                <label for="faturamento-${i}" class="block text-sm font-medium text-slate-600">Faturamento (último semestre) <span class="text-red-500">*</span></label>
-                                <input type="text" id="faturamento-${i}" name="faturamento-${i}" class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500" placeholder="Ex: 150.000,00">
                             </div>
                             <hr class="lg:col-span-3 my-2">
                             <div>
@@ -215,17 +207,6 @@
                                 <label for="endereco-${i}" class="block text-sm font-medium text-slate-600">Endereço Completo</label>
                                 <input type="text" id="endereco-${i}" name="endereco-${i}" class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500">
                             </div>
-                             <div>
-                                <label for="classificacao-${i}" class="block text-sm font-medium text-slate-600">Classificação do Cliente</label>
-                                <select id="classificacao-${i}" name="classificacao-${i}" class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500">
-                                    <option value="" disabled selected>Selecione</option>
-                                    <option>Platinum</option><option>Ouro</option><option>Prata</option><option>Bronze</option>
-                                </select>
-                            </div>
-                             <div>
-                                <label for="nivel-influencia-${i}" class="block text-sm font-medium text-slate-600">Nível de Influência</label>
-                                <input type="text" id="nivel-influencia-${i}" name="nivel-influencia-${i}" class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500">
-                            </div>
                             <div class="lg:col-span-3">
                                 <label for="justificativa-${i}" class="block text-sm font-medium text-slate-600">Observações/Justificativa</label>
                                 <textarea id="justificativa-${i}" name="justificativa-${i}" rows="3" class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500"></textarea>
@@ -251,20 +232,15 @@
                 vendedorNome: form1.get('vendedor-nome'),
                 vendedorEmail: form1.get('vendedor-email'),
                 evento: form1.get('evento'),
-                quantidade: parseInt(form1.get('quantidade'), 10)
+                quantidade: 1 // Quantidade fixada em 1
             };
 
-            // Validação
-            if (!data.vendedorNome || !data.vendedorEmail || !data.evento || !data.quantidade) {
+            if (!data.vendedorNome || !data.vendedorEmail || !data.evento) {
                 showAlert('Campos em Falta', 'Por favor, preencha todos os campos da primeira etapa.');
                 return;
             }
             if (!/^\S+@\S+\.\S+$/.test(data.vendedorEmail)) {
                 showAlert('Email Inválido', 'Por favor, insira um email válido.');
-                return;
-            }
-            if (data.quantidade < 1 || data.quantidade > 4) {
-                showAlert('Quantidade Inválida', 'A quantidade de cortesias deve ser entre 1 e 4.');
                 return;
             }
 
@@ -290,7 +266,6 @@
                     codigoCliente: form2.get(`codigo-cliente-${i}`),
                     cnpjCpf: form2.get(`cnpj-cpf-${i}`),
                     cidade: form2.get(`cidade-${i}`),
-                    faturamento: form2.get(`faturamento-${i}`),
                     contatoNome: form2.get(`contato-nome-${i}`),
                     crmUf: form2.get(`crm-uf-${i}`),
                     especialidade: form2.get(`especialidade-${i}`),
@@ -298,11 +273,9 @@
                     telefoneContato: form2.get(`contato-telefone-${i}`),
                     cargoContato: form2.get(`contato-cargo-${i}`),
                     endereco: form2.get(`endereco-${i}`),
-                    classificacao: form2.get(`classificacao-${i}`),
-                    nivelInfluencia: form2.get(`nivel-influencia-${i}`),
                     justificativa: form2.get(`justificativa-${i}`)
                 };
-                if (!cortesia.codigoCliente || !cortesia.cidade || !cortesia.faturamento || !cortesia.crmUf) {
+                if (!cortesia.codigoCliente || !cortesia.cidade || !cortesia.crmUf) {
                     isForm2Valid = false;
                     break;
                 }
@@ -314,17 +287,15 @@
                 return;
             }
 
-            // Construir o corpo do email em HTML
             let detalhesHtml = '';
             cortesias.forEach((c, index) => {
                 detalhesHtml += `
                     <div style="border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 20px; padding: 15px; background-color: #f8fafc;">
-                        <h3 style="margin-top:0; color: #1e293b; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">Cortesia ${index + 1}</h3>
+                        <h3 style="margin-top:0; color: #1e293b; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">Dados da Cortesia</h3>
                         <p><strong>Nome do Cliente:</strong> ${c.nomeCliente || 'N/A'}</p>
                         <p><strong>Código do Cliente:</strong> ${c.codigoCliente}</p>
                         <p><strong>CNPJ/CPF:</strong> ${c.cnpjCpf || 'N/A'}</p>
                         <p><strong>Cidade:</strong> ${c.cidade}</p>
-                        <p><strong>Faturamento (último semestre):</strong> ${c.faturamento}</p>
                         <hr style="border:none; border-top: 1px dashed #cbd5e1; margin: 10px 0;">
                         <p><strong>Nome do Contato:</strong> ${c.contatoNome || 'N/A'}</p>
                         <p><strong>CRM/UF:</strong> ${c.crmUf}</p>
@@ -333,8 +304,6 @@
                         <p><strong>Telefone:</strong> ${c.telefoneContato || 'N/A'}</p>
                         <p><strong>Cargo:</strong> ${c.cargoContato || 'N/A'}</p>
                         <p><strong>Endereço:</strong> ${c.endereco || 'N/A'}</p>
-                        <p><strong>Classificação:</strong> ${c.classificacao || 'N/A'}</p>
-                        <p><strong>Nível de Influência:</strong> ${c.nivelInfluencia || 'N/A'}</p>
                         <p><strong>Justificativa:</strong> ${c.justificativa || 'N/A'}</p>
                     </div>
                 `;
@@ -348,7 +317,6 @@
                 detalhes_cortesias: detalhesHtml
             };
             
-            // Lógica de envio do EmailJS
             const submitButton = document.getElementById('submit-button');
             const buttonText = document.getElementById('button-text');
             const loader = document.getElementById('loader');
