@@ -8,7 +8,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -27,7 +26,6 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        /* Adiciona uma transição suave entre as telas */
         .screen {
             transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
         }
@@ -51,11 +49,11 @@
         <!-- Mensagens de Feedback -->
         <div id="success-message" class="hidden bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-lg mb-6" role="alert">
             <p class="font-bold">Solicitação Enviada!</p>
-            <p>Sua cortesia foi solicitada com sucesso. O marketing retornará em até 7 dias úteis.</p>
+            <p>Sua cortesia foi enviada para aprovação. Obrigado!</p>
         </div>
         <div id="error-message" class="hidden bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-6" role="alert">
             <p id="error-text" class="font-bold">Erro no Envio</p>
-            <p id="error-subtext">Não foi possível enviar a solicitação. Por favor, tente novamente.</p>
+            <p id="error-subtext">Não foi possível enviar a solicitação. Verifique a configuração e tente novamente.</p>
         </div>
 
         <!-- Tela 1: Dados do Vendedor e Evento -->
@@ -78,7 +76,6 @@
                             <!-- Eventos inseridos via JS -->
                         </div>
                     </div>
-                    <!-- Campo de quantidade removido -->
                 </div>
                 <div class="mt-8">
                     <button type="button" id="next-button" class="w-full bg-sky-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-all">
@@ -99,7 +96,7 @@
                         Voltar
                     </button>
                     <button type="submit" id="submit-button" class="w-full bg-green-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all flex items-center justify-center">
-                        <span id="button-text">Solicitar Cortesia</span>
+                        <span id="button-text">Enviar para Aprovação</span>
                         <div id="loader" class="loader hidden"></div>
                     </button>
                 </div>
@@ -110,9 +107,8 @@
     <script>
         // --- CONFIGURAÇÃO ---
         const eventosDisponiveis = ["Congresso Nacional de Inovação em Saúde", "Feira Hospitalar 2025", "Simpósio de Telemedicina Avançada", "Workshop de Gestão para Clínicas"];
-        const EMAILJS_PUBLIC_KEY = 'L-KAMT0IUpNWd3p6N';
-        const EMAILJS_SERVICE_ID = 'service_r643f7a';
-        const EMAILJS_TEMPLATE_ID = 'template_cortesia';
+        // URL do seu Google Apps Script
+        const GOOGLE_APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzxXmRQVyJ2FQV5PwFnfo7gGDEdlLrmOu_gURXpldU-PCeVLnTI1SjK7hvIez4tND3RAg/exec';
         // --------------------
 
         const state = {
@@ -232,7 +228,7 @@
                 vendedorNome: form1.get('vendedor-nome'),
                 vendedorEmail: form1.get('vendedor-email'),
                 evento: form1.get('evento'),
-                quantidade: 1 // Quantidade fixada em 1
+                quantidade: 1
             };
 
             if (!data.vendedorNome || !data.vendedorEmail || !data.evento) {
@@ -257,65 +253,27 @@
             event.preventDefault();
             
             const form2 = new FormData(this);
-            const cortesias = [];
-            let isForm2Valid = true;
+            const cortesia = {
+                nomeCliente: form2.get('cliente-nome-0'),
+                codigoCliente: form2.get('codigo-cliente-0'),
+                cnpjCpf: form2.get('cnpj-cpf-0'),
+                cidade: form2.get('cidade-0'),
+                contatoNome: form2.get('contato-nome-0'),
+                crmUf: form2.get('crm-uf-0'),
+                especialidade: form2.get('especialidade-0'),
+                emailContato: form2.get('contato-email-0'),
+                telefoneContato: form2.get('contato-telefone-0'),
+                cargoContato: form2.get('contato-cargo-0'),
+                endereco: form2.get('endereco-0'),
+                justificativa: form2.get('justificativa-0')
+            };
 
-            for (let i = 0; i < state.screen1Data.quantidade; i++) {
-                const cortesia = {
-                    nomeCliente: form2.get(`cliente-nome-${i}`),
-                    codigoCliente: form2.get(`codigo-cliente-${i}`),
-                    cnpjCpf: form2.get(`cnpj-cpf-${i}`),
-                    cidade: form2.get(`cidade-${i}`),
-                    contatoNome: form2.get(`contato-nome-${i}`),
-                    crmUf: form2.get(`crm-uf-${i}`),
-                    especialidade: form2.get(`especialidade-${i}`),
-                    emailContato: form2.get(`contato-email-${i}`),
-                    telefoneContato: form2.get(`contato-telefone-${i}`),
-                    cargoContato: form2.get(`contato-cargo-${i}`),
-                    endereco: form2.get(`endereco-${i}`),
-                    justificativa: form2.get(`justificativa-${i}`)
-                };
-                if (!cortesia.codigoCliente || !cortesia.cidade || !cortesia.crmUf) {
-                    isForm2Valid = false;
-                    break;
-                }
-                cortesias.push(cortesia);
-            }
-
-            if (!isForm2Valid) {
-                showAlert('Campos Obrigatórios', 'Por favor, preencha todos os campos marcados com * para cada cortesia.');
+            if (!cortesia.codigoCliente || !cortesia.cidade || !cortesia.crmUf) {
+                 showAlert('Campos Obrigatórios', 'Por favor, preencha todos os campos marcados com *.');
                 return;
             }
 
-            let detalhesHtml = '';
-            cortesias.forEach((c, index) => {
-                detalhesHtml += `
-                    <div style="border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 20px; padding: 15px; background-color: #f8fafc;">
-                        <h3 style="margin-top:0; color: #1e293b; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">Dados da Cortesia</h3>
-                        <p><strong>Nome do Cliente:</strong> ${c.nomeCliente || 'N/A'}</p>
-                        <p><strong>Código do Cliente:</strong> ${c.codigoCliente}</p>
-                        <p><strong>CNPJ/CPF:</strong> ${c.cnpjCpf || 'N/A'}</p>
-                        <p><strong>Cidade:</strong> ${c.cidade}</p>
-                        <hr style="border:none; border-top: 1px dashed #cbd5e1; margin: 10px 0;">
-                        <p><strong>Nome do Contato:</strong> ${c.contatoNome || 'N/A'}</p>
-                        <p><strong>CRM/UF:</strong> ${c.crmUf}</p>
-                        <p><strong>Especialidade:</strong> ${c.especialidade || 'N/A'}</p>
-                        <p><strong>Email do Contato:</strong> ${c.emailContato || 'N/A'}</p>
-                        <p><strong>Telefone:</strong> ${c.telefoneContato || 'N/A'}</p>
-                        <p><strong>Cargo:</strong> ${c.cargoContato || 'N/A'}</p>
-                        <p><strong>Endereço:</strong> ${c.endereco || 'N/A'}</p>
-                        <p><strong>Justificativa:</strong> ${c.justificativa || 'N/A'}</p>
-                    </div>
-                `;
-            });
-
-            const templateParams = {
-                vendedor_nome: state.screen1Data.vendedorNome,
-                vendedor_email: state.screen1Data.vendedorEmail,
-                evento_selecionado: state.screen1Data.evento,
-                quantidade_total: state.screen1Data.quantidade,
-                detalhes_cortesias: detalhesHtml
-            };
+            const payload = { ...state.screen1Data, ...cortesia };
             
             const submitButton = document.getElementById('submit-button');
             const buttonText = document.getElementById('button-text');
@@ -325,29 +283,36 @@
             loader.classList.remove('hidden');
             submitButton.disabled = true;
 
-            emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
-                .then(() => {
-                    document.getElementById('success-message').classList.remove('hidden');
-                    document.getElementById('form-screen-1').reset();
-                    document.getElementById('form-screen-2').reset();
-                    showScreen(1);
-                }, (error) => {
-                    console.error('EmailJS error:', error);
-                    showAlert('Erro no Envio', 'Ocorreu um erro ao enviar o email. Tente novamente.');
-                })
-                .finally(() => {
-                    buttonText.textContent = 'Solicitar Cortesias';
-                    loader.classList.add('hidden');
-                    submitButton.disabled = false;
-                    setTimeout(() => {
-                        document.getElementById('success-message').classList.add('hidden');
-                    }, 8000);
-                });
+            fetch(GOOGLE_APP_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors', // Importante para evitar erros de CORS com Apps Script
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(() => {
+                document.getElementById('success-message').classList.remove('hidden');
+                document.getElementById('form-screen-1').reset();
+                document.getElementById('form-screen-2').reset();
+                showScreen(1);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('Erro no Envio', 'Ocorreu um erro ao enviar os dados. Tente novamente.');
+            })
+            .finally(() => {
+                buttonText.textContent = 'Enviar para Aprovação';
+                loader.classList.add('hidden');
+                submitButton.disabled = false;
+                setTimeout(() => {
+                    document.getElementById('success-message').classList.add('hidden');
+                }, 8000);
+            });
         });
 
         document.addEventListener('DOMContentLoaded', () => {
             popularEventos();
-            emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
             showScreen(1);
         });
     </script>
